@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Marino de la 21 | Móvil</title>
+    <style>
+        :root {
+            --azul-principal: #004488;
+            --azul-claro: #e6f0f9;
+            --blanco: #ffffff;
+            --gris-texto: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--blanco);
+            color: var(--gris-texto);
+            line-height: 1.4;
+        }
+
+        /* UTILIDADES */
+        .hidden { display: none !important; }
+        .container { padding: 15px; }
+
+        /* HEADER MÓVIL */
+        header {
+            background-color: var(--azul-principal);
+            color: var(--blanco);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 { font-size: 1.2rem; }
+
+        .btn-staff-top {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid var(--blanco);
+            color: var(--blanco);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+
+        /* GRID DE MENÚ (ADAPTADO A CELULAR) */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Una sola columna para móvil */
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .plato-card {
+            background: var(--azul-claro);
+            border: 1px solid #d0e0f0;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .plato-info h3 { font-size: 1rem; color: var(--azul-principal); }
+        .plato-info p { font-weight: bold; margin-top: 5px; }
+
+        .btn-add {
+            background: var(--azul-principal);
+            color: var(--blanco);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        /* CARRITO FLOTANTE */
+        .footer-cart {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: var(--azul-principal);
+            color: var(--blanco);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        /* VISTAS PANTALLA COMPLETA (LOGIN Y MESEROS) */
+        .full-view {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--blanco);
+            z-index: 2000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .login-box {
+            margin-top: 100px;
+            text-align: center;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .btn-block {
+            width: 100%;
+            padding: 15px;
+            background: var(--azul-principal);
+            color: var(--blanco);
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* COMANDAS MESEROS */
+        .comanda-card {
+            background: #f9f9f9;
+            border: 2px solid var(--azul-principal);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-done { background: #28a745; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <section id="vista-menu">
+        <header>
+            <h1>MARINO DE LA 21</h1>
+            <button onclick="irALogin()" class="btn-staff-top">STAFF</button>
+        </header>
+
+        <div class="container">
+            <h2 style="font-size: 1.1rem; margin-bottom: 15px;">Menú del Día</h2>
+            <div id="lista-platos" class="menu-grid">
+                </div>
+        </div>
+
+        <div id="cart-float" class="footer-cart hidden">
+            <div>
+                <span id="cart-count">0</span> platos seleccionados
+                <div id="cart-total" style="font-weight: bold; font-size: 1.1rem;">Total: $0</div>
+            </div>
+            <button onclick="irACheckout()" class="btn-add" style="background: white; color: var(--azul-principal);">PEDIR</button>
+        </div>
+    </section>
+
+    <section id="vista-checkout" class="full-view hidden">
+        <h2>Detalles de tu Orden</h2>
+        <div id="resumen-lista" style="margin: 15px 0;"></div>
+        
+        <input type="text" id="nombreC" placeholder="Tu nombre">
+        <input type="number" id="mesaC" placeholder="Mesa #">
+        <input type="texto" id="comentario"placeholder="Comentario">
+        <label>Método de Pago:</label>
+        <select id="pagoC">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Tarjeta">Tarjeta</option>
+            <option value="Transferencia">Transferencia</option>
+        </select>
+
+        <button onclick="confirmarTodo()" class="btn-block">CONFIRMAR PEDIDO</button>
+        <button onclick="regresarMenu()" class="btn-block" style="background: #ccc; color: #333;">VOLVER</button>
+    </section>
+
+    <section id="vista-login" class="full-view hidden">
+        <div class="login-box">
+            <h2 style="color: var(--azul-principal)">Acceso de Staff</h2>
+            <input type="password" id="pin" placeholder="PIN de seguridad">
+            <button onclick="entrarPanel()" class="btn-block">ENTRAR</button>
+            <button onclick="regresarMenu()" style="margin-top:20px; background:none; border:none; color: blue;">Volver al Menú</button>
+        </div>
+    </section>
+
+    <section id="vista-meseros" class="full-view hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2>PEDIDOS</h2>
+            <button onclick="regresarMenu()" class="btn-staff-top" style="color:blue; border-color:blue;">SALIR</button>
+        </div>
+        <div id="contenedor-comandas">
+            </div>
+    </section>
+
+    <script>
+        const menu = [
+            { id: 1, nombre: "Mojarra Frita", precio: 25000 },
+            { id: 2, nombre: "Arroz de Camarón", precio: 30000 },
+            { id: 3, nombre: "Sopa de Pescado", precio: 15000 },
+            { id: 4, nombre: "Limonada Celler", precio: 8000 },
+            { id: 5, nombre: "Filete a la Plancha", precio: 28000 }
+        ];
+
+        let carrito = [];
+
+        function cargarPlatos() {
+            const grid = document.getElementById('lista-platos');
+            grid.innerHTML = menu.map(p => `
+                <div class="plato-card">
+                    <div class="plato-info">
+                        <h3>${p.nombre}</h3>
+                        <p>$${p.precio.toLocaleString()}</p>
+                    </div>
+                    <button class="btn-add" onclick="agregarAlCarrito(${p.id})">+ Añadir</button>
+                </div>
+            `).join('');
+        }
+
+        function agregarAlCarrito(id) {
+            const item = menu.find(p => p.id === id);
+            carrito.push(item);
+            actualizarBarra();
+        }
+
+        function actualizarBarra() {
+            const bar = document.getElementById('cart-float');
+            if(carrito.length > 0) {
+                bar.classList.remove('hidden');
+                document.getElementById('cart-count').innerText = carrito.length;
+                const total = carrito.reduce((s, i) => s + i.precio, 0);
+                document.getElementById('cart-total').innerText = "Total: $" + total.toLocaleString();
+            } else {
+                bar.classList.add('hidden');
+            }
+        }
+
+        // NAVEGACIÓN
+        function irALogin() { document.getElementById('vista-login').classList.remove('hidden'); }
+        function irACheckout() {
+            document.getElementById('vista-checkout').classList.remove('hidden');
+            const lista = document.getElementById('resumen-lista');
+            lista.innerHTML = carrito.map(i => `• ${i.nombre} ($${i.precio})`).join('<br>');
+        }
+        function regresarMenu() {
+            document.querySelectorAll('.full-view').forEach(v => v.classList.add('hidden'));
+        }
+
+        function entrarPanel() {
+            const pin = document.getElementById('pin').value;
+            if(pin === "2026") {
+                document.getElementById('vista-login').classList.add('hidden');
+                document.getElementById('vista-meseros').classList.remove('hidden');
+                dibujarComandas();
+            } else { alert("PIN Incorrecto"); }
+        }
+
+        function confirmarTodo() {
+            const nombre = document.getElementById('nombreC').value;
+            const mesa = document.getElementById('mesaC').value;
+            const pago = document.getElementById('pagoC').value;
+
+            if(!nombre || !mesa) return alert("Escribe tu nombre y mesa");
+
+            const pedido = {
+                id: Date.now(),
+                cliente: nombre,
+                mesa: mesa,
+                pago: pago,
+                platos: carrito.map(c => c.nombre),
+                total: carrito.reduce((s, i) => s + i.precio, 0)
+            };
+
+            let actuales = JSON.parse(localStorage.getItem('pedidos_movil')) || [];
+            actuales.push(pedido);
+            localStorage.setItem('pedidos_movil', JSON.stringify(actuales));
+
+            alert("¡Pedido enviado, primo! Espérelo en su mesa.");
+            carrito = [];
+            actualizarBarra();
+            regresarMenu();
+        }
+
+        function dibujarComandas() {
+            const container = document.getElementById('contenedor-comandas');
+            const pedidos = JSON.parse(localStorage.getItem('pedidos_movil')) || [];
+            
+            container.innerHTML = pedidos.map(p => `
+                <div class="comanda-card">
+                    <h4>MESA ${p.mesa} - ${p.cliente}</h4>
+                    <p style="margin:5px 0;">${p.platos.join(', ')}</p>
+                    <p><strong>Total: $${p.total.toLocaleString()}</strong></p>
+                    <p><small>Pago: ${p.pago}</small></p>
+                    <button class="btn-done" onclick="borrarPedido(${p.id})">MARCAR ENTREGADO</button>
+                </div>
+            `).join('');
+        }
+
+        function borrarPedido(id) {
+            let pedidos = JSON.parse(localStorage.getItem('pedidos_movil'));
+            pedidos = pedidos.filter(p => p.id !== id);
+            localStorage.setItem('pedidos_movil', JSON.stringify(pedidos));
+            dibujarComandas();
+        }
+
+        window.onload = cargarPlatos;
+    </script>
+</body>
+</html>
